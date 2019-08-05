@@ -127,7 +127,7 @@ var graphioGremlin = (function(){
 			gremlin_query_nodes += ".toList();";
 		}
 		let gremlin_query_edges = "edges = " + traversal_source + ".V(nodes).aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
-                let gremlin_query_edges_no_vars = "edges = " + traversal_source + ".V()"+has_str+".aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
+        let gremlin_query_edges_no_vars = "edges = " + traversal_source + ".V()"+has_str+".aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
                 //let gremlin_query_edges_no_vars = "edges = " + traversal_source + ".V()"+has_str+".bothE();";
 		let gremlin_query = gremlin_query_nodes + gremlin_query_edges + "[nodes,edges]";
 		console.log(gremlin_query);
@@ -135,10 +135,10 @@ var graphioGremlin = (function(){
 		// while busy, show we're doing something in the messageArea.
 		$('#messageArea').html('<h3>(loading)</h3>');
 		// To display the queries in the message area:
-		//var message_nodes = "<p>Node query: '"+gremlin_query_nodes+"'</p>";
-		//var message_edges = "<p>Edge query: '"+gremlin_query_edges+"'</p>";
-		//var message = message_nodes + message_edges;
-		var message = "";
+		var message_nodes = "<p>Node query: '"+gremlin_query_nodes+"'</p>";
+		var message_edges = "<p>Edge query: '"+gremlin_query_edges+"'</p>";
+		var message = message_nodes + message_edges;
+		//var message = "";
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
 			var nodeQuery = create_single_command(gremlin_query_nodes);
 			var edgeQuery = create_single_command(gremlin_query_edges_no_vars);
@@ -148,6 +148,89 @@ var graphioGremlin = (function(){
 				send_to_server(edgeQuery, null, null, null, function(edgeData){
 					var combinedData = [nodeData,edgeData];
 					handle_server_answer(combinedData, 'search', null, message);
+				});
+			});
+		} else {
+			send_to_server(gremlin_query,'search',null,message);
+		}
+	}
+
+	function load_graph(){
+		let gremlin_query_nodes = traversal_source + ".V()";
+		let gremlin_query_edges = traversal_source + ".E()";
+
+		let gremlin_query = gremlin_query_nodes+gremlin_query_edges+"[nodes, edges]";
+		// while busy, show we're doing something in the messageArea.
+		$('#messageArea').html('<h3>(loading)</h3>');
+		var message = ""
+		if (SINGLE_COMMANDS_AND_NO_VARS) {
+			var nodeQuery = create_single_command(gremlin_query_nodes);
+			var edgeQuery = create_single_command(gremlin_query_edges);
+			console.log("Node query: "+nodeQuery);
+			console.log("Edge query: "+edgeQuery);
+			send_to_server(nodeQuery, null, null, null, function(nodeData){
+				send_to_server(edgeQuery, null, null, null, function(edgeData){
+					var combinedData = [nodeData,edgeData];
+					handle_server_answer(combinedData, 'search', null, message);
+				});
+			});
+		} else {
+			send_to_server(gremlin_query,'search',null,message);
+		}
+	}
+
+	function run_user_query() {
+		let node_input = $('#user_node_query').val();
+		let edge_input = $('#user_edge_query').val();
+		if (node_input || edge_input) {
+			if (!node_input) {
+				edge_input_only(edge_input);
+			} else {
+				var gremlin_query_edges = edge_input;
+				if (!edge_input)
+					gremlin_query_edges = node_input + ".aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
+				var gremlin_query = node_input+gremlin_query_edges+"[nodes, edges]";
+				// while busy, show we're doing something in the messageArea.
+				$('#messageArea').html('<h3>(loading)</h3>');
+				var message = "";
+				if (SINGLE_COMMANDS_AND_NO_VARS) {
+					var nodeQuery = create_single_command(node_input);
+					var edgeQuery = create_single_command(gremlin_query_edges);
+					console.log("Node query: "+nodeQuery);
+					console.log("Edge query: "+edgeQuery);
+					send_to_server(nodeQuery, null, null, null, function(nodeData){
+						send_to_server(edgeQuery, null, null, null, function(edgeData){
+							var combinedData = [nodeData,edgeData];
+							handle_server_answer(combinedData, 'search', null, message);
+						});
+					});
+				} else {
+					send_to_server(gremlin_query,'search',null,message);
+				}
+			}
+			
+		}
+	}
+
+	function edge_input_only(edge_input) {
+		var gremlin_query_in_nodes = edge_input + ".inV()";
+		var gremlin_query_out_nodes = edge_input + ".outV()";
+		var gremlin_query = gremlin_query_in_nodes+gremlin_query_out_nodes+edge_input+"[nodes, edges]";
+		// while busy, show we're doing something in the messageArea.
+		$('#messageArea').html('<h3>(loading)</h3>');
+		var message = "";
+		if (SINGLE_COMMANDS_AND_NO_VARS) {
+			var inNodeQuery = create_single_command(gremlin_query_in_nodes);
+			var outNodeQuery = create_single_command(gremlin_query_out_nodes);
+			var edgeQuery = create_single_command(edge_input);
+			console.log("Node queries: "+inNodeQuery + "; " + outNodeQuery);
+			console.log("Edge query: "+edgeQuery);
+			send_to_server(inNodeQuery, null, null, null, function(inNodeData) {
+				send_to_server(outNodeQuery, null, null, null, function(outNodeData) {
+					send_to_server(edgeQuery, null, null, null, function(edgeData) {
+						var combinedData = [inNodeData,outNodeData,edgeData];
+						handle_server_answer(combinedData, 'search', null, message);
+					});
 				});
 			});
 		} else {
@@ -247,9 +330,10 @@ var graphioGremlin = (function(){
 					msgs.push('Possible cause: creating an edge with bad node ids ' +
 						'(linking nodes not existing in the DB).');
 				} else {
+					msgs.push(gremlin_query);
 					msgs.push('Can\'t access database using REST at ' + server_url);
 					msgs.push('Message: ' + status + ', ' + error);
-					msgs.push('Check the server configuration ' +
+					msgs.push('Check your query or the server configuration ' +
 						'or try increasing the REST_TIMEOUT value in the config file.');
 				}
 
@@ -567,6 +651,8 @@ function get_vertex_prop_in_list(vertexProperty){
 		get_edge_properties : get_edge_properties,
 		get_graph_info : get_graph_info,
 		search_query : search_query,
+		load_graph : load_graph,
+		run_user_query : run_user_query,
 		click_query : click_query,
 		send_to_server : send_to_server
 	}
