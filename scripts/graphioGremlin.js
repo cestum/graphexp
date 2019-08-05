@@ -201,7 +201,7 @@ var graphioGremlin = (function(){
 					send_to_server(nodeQuery, null, null, null, function(nodeData){
 						send_to_server(edgeQuery, null, null, null, function(edgeData){
 							var combinedData = [nodeData,edgeData];
-							handle_server_answer(combinedData, 'search', null, message);
+							handle_server_answer(combinedData,'search', null, message);
 						});
 					});
 				} else {
@@ -223,13 +223,13 @@ var graphioGremlin = (function(){
 			var inNodeQuery = create_single_command(gremlin_query_in_nodes);
 			var outNodeQuery = create_single_command(gremlin_query_out_nodes);
 			var edgeQuery = create_single_command(edge_input);
-			console.log("Node queries: "+inNodeQuery + "; " + outNodeQuery);
-			console.log("Edge query: "+edgeQuery);
+			console.log("Node queries: "+ inNodeQuery + "; " + outNodeQuery);
+			console.log("Edge query: "+ edgeQuery);
 			send_to_server(inNodeQuery, null, null, null, function(inNodeData) {
 				send_to_server(outNodeQuery, null, null, null, function(outNodeData) {
 					send_to_server(edgeQuery, null, null, null, function(edgeData) {
 						var combinedData = [inNodeData,outNodeData,edgeData];
-						handle_server_answer(combinedData, 'search', null, message);
+						handle_server_answer(combinedData,'search', null, message);
 					});
 				});
 			});
@@ -333,7 +333,7 @@ var graphioGremlin = (function(){
 					msgs.push(gremlin_query);
 					msgs.push('Can\'t access database using REST at ' + server_url);
 					msgs.push('Message: ' + status + ', ' + error);
-					msgs.push('Check your query or the server configuration ' +
+					msgs.push('Check the server configuration ' +
 						'or try increasing the REST_TIMEOUT value in the config file.');
 				}
 
