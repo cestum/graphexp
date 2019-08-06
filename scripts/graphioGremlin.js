@@ -135,10 +135,10 @@ var graphioGremlin = (function(){
 		// while busy, show we're doing something in the messageArea.
 		$('#messageArea').html('<h3>(loading)</h3>');
 		// To display the queries in the message area:
-		var message_nodes = "<p>Node query: '"+gremlin_query_nodes+"'</p>";
-		var message_edges = "<p>Edge query: '"+gremlin_query_edges+"'</p>";
-		var message = message_nodes + message_edges;
-		//var message = "";
+		// var message_nodes = "<p>Node query: '"+gremlin_query_nodes+"'</p>";
+		// var message_edges = "<p>Edge query: '"+gremlin_query_edges+"'</p>";
+		// var message = message_nodes + message_edges;
+		var message = "";
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
 			var nodeQuery = create_single_command(gremlin_query_nodes);
 			var edgeQuery = create_single_command(gremlin_query_edges_no_vars);
