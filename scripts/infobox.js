@@ -94,15 +94,8 @@ var infobox = (function(){
 		show_element(_)
 	}
 
-	function display_info(node_data){
+	function display_info(d){
 		// remove previous info		
-		_display_IDinfo(node_data)
-		//_display_DBinfo(node_data);
-	}
-
-	//////////////////////
-	// Private functions
-	function _display_IDinfo(d){
 		_table_IDinfo.select("tbody").remove();
 	  	var info_table = _table_IDinfo.append("tbody");
 	  	// Keep only the entries in id_keys, to display
@@ -127,23 +120,8 @@ var infobox = (function(){
 		}
 	}
 
-	function _display_DBinfo(d){
-		_table_IDinfo.select("tbody").remove();
-	 	var info_table = _table_IDinfo.append("tbody");
-	 	if (d.type=='vertex'){
-		 	for (var key in d.properties){
-		 		_display_vertex_properties(key,d.properties[key],info_table)
-		 	}
-		}
-		else {
-		 	for (var key in d.properties){
-		 		var new_info_row = info_table.append("tr");
-	 			new_info_row.append("td").text(key);
-	 			new_info_row.append("td").text(d.properties[key]);
-	 			new_info_row.append("td").text("")
-			}
-		}
-	}
+	//////////////////////
+	// Private functions
 
 	function _display_vertex_properties(key,value,info_table) {
  		for (var subkey in value){

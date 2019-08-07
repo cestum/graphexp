@@ -305,18 +305,20 @@ var graphShapes = (function(){
 				x.style.display = "block";
 			var value_set = new Set(value_list.map(function(d){	return d.label;}));
 			node_code_color = d3.scaleOrdinal().domain(value_set).range(d3.range(0,value_set.size));
-			
+			var label_data = Array.from(value_set);
 			if(!count) {
 				count++;
+				var svg = d3.select("#formCheckLabel").append("svg").attr("height", value_set.size * 20);
 				d3.select("#formCheckLabel").append('label').attr('class', 'form-check-label').attr('for', 'ALL')
 					.text("ALL  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
 					.attr('id', "ALL").attr('onchange', 'graphShapes.colorByLabel("ALL")');
-				value_set.forEach(function(labels) {
-					d3.select("#formCheckLabel").append('label').attr('class', 'form-check-label').attr('for', labels)
-					.text(labels + "  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
-					.attr('id', labels).attr('onchange', 'colorByLabel(this)');
+				label_data.forEach(function(label, i) {
+					d3.select("#formCheckLabel").append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
+						.text(label).append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
+						.attr('id', label).attr('onchange', 'colorByLabel(this)');
+					svg.append("circle").attr("r", 6).attr("cx", 10).attr("cy", 10 + i*20).style("fill", color_palette(node_code_color(label)));
+					svg.append("text").attr("x", 30).attr("y", 10 + i*20).text(label).attr("text-anchor", "left").style("alignment-baseline", "middle");
 				});
-
 			}
 
 			var items = document.getElementsByName('colorLabel');
