@@ -21,7 +21,6 @@ var infobox = (function(){
 
 	//private variables
 	var _table_IDinfo = {};
-	var _table_DBinfo = {};
 	var _table_Graphinfo = {};
 	var _side_image = {};
 	var _font_size = "12px";
@@ -38,8 +37,6 @@ var infobox = (function(){
 		graphElem_bar.append("h2").text("Item Info")
 		_table_IDinfo = graphElem_bar.append("table").attr("id","tableIdDetails");
 		init_table(_table_IDinfo,["Key","Value"]);
-		_table_DBinfo = graphElem_bar.append("table").attr("id","tableDBDetails");
-		init_table(_table_DBinfo,["Key","Value","Property"]);
 		hide_element(label_graph);
 
 	}
@@ -100,7 +97,7 @@ var infobox = (function(){
 	function display_info(node_data){
 		// remove previous info		
 		_display_IDinfo(node_data)
-		_display_DBinfo(node_data);
+		//_display_DBinfo(node_data);
 	}
 
 	//////////////////////
@@ -115,11 +112,24 @@ var infobox = (function(){
 	  		data_dic[id_keys[key]] = d[id_keys[key]]
 	  	}
 	  	append_keysvalues(info_table,data_dic)
+		if (d.type=='vertex'){
+		 	for (var key in d.properties){
+		 		_display_vertex_properties(key,d.properties[key],info_table)
+		 	}
+		}
+		else {
+		 	for (var key in d.properties){
+		 		var new_info_row = info_table.append("tr");
+	 			new_info_row.append("td").text(key);
+	 			new_info_row.append("td").text(d.properties[key]);
+	 			new_info_row.append("td").text("")
+			}
+		}
 	}
 
 	function _display_DBinfo(d){
-		_table_DBinfo.select("tbody").remove();
-	 	var info_table = _table_DBinfo.append("tbody");
+		_table_IDinfo.select("tbody").remove();
+	 	var info_table = _table_IDinfo.append("tbody");
 	 	if (d.type=='vertex'){
 		 	for (var key in d.properties){
 		 		_display_vertex_properties(key,d.properties[key],info_table)
