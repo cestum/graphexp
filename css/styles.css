@@ -192,6 +192,7 @@ Layout styles
     box-shadow: 1px 1px 15px #888;
 }
 
+
 /* -----------------------
 Nav
 ------------------------*/
@@ -430,5 +431,10 @@ Wide styles
     float: right;
     background-color: darkslategrey;
     border-bottom-left-radius: 15px;
+}
+
+#formCheckLabel label {
+	display: block;
+	padding-bottom: 5px;
 }
 

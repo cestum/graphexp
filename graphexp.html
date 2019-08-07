@@ -195,6 +195,11 @@
                             </label>
                         </div>
                     </div>
+
+                    <div id="labelColor" style="pointer-events:auto;" >
+                        <div class="form-check" id="formCheckLabel" style="display:none;">
+                        </div>
+                    </div>
                     <div id="graphInfo" style="pointer-events:none;">
                     </div>
                 </div>
@@ -278,6 +283,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- INITIALIZATION -->
             <script type="text/javascript">
                 if(host){
@@ -463,6 +469,13 @@
                 var isChecked = input.checked;
                 if (isChecked) element.style("display", "inline");
                 else {element.style("display", "none");}
+                }
+
+                function colorByLabel(selection){
+                var value = selection.value;
+                console.log('Color by '+value);
+                graphShapes.colorByLabel(value);
+
                 }
 
             </script>
