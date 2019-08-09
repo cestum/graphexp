@@ -299,7 +299,6 @@ var graphShapes = (function(){
 			});
 		}
 		else if (prop_name=="label"){
-			colorize("none");
 			var x = document.getElementById("formCheckLabel");
 			if(x.style.display == "none") 
 				x.style.display = "block";
@@ -308,24 +307,25 @@ var graphShapes = (function(){
 			var label_data = Array.from(value_set);
 			if(!count) {
 				count++;
-				var svg = d3.select("#formCheckLabel").append("svg").attr("height", value_set.size * 20);
 				d3.select("#formCheckLabel").append('label').attr('class', 'form-check-label').attr('for', 'ALL')
 					.text("ALL  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
 					.attr('id', "ALL").attr('onchange', 'graphShapes.colorByLabel("ALL")');
 				label_data.forEach(function(label, i) {
-					d3.select("#formCheckLabel").append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
-						.text(label).append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
+					d3.select("#formCheckLabel").append("div").attr('id', 'each_label' + label);
+					var svg = d3.select("#each_label" + label).append("svg").attr("height", "10").attr('width', '10');
+					svg.append("circle").attr("r", 6).attr("cx", 5).attr("cy", 5).style("fill", color_palette(node_code_color(label)));
+					d3.select("#each_label"+label).append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
+						.text(label + "  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
 						.attr('id', label).attr('onchange', 'colorByLabel(this)');
-					svg.append("circle").attr("r", 6).attr("cx", 10).attr("cy", 10 + i*20).style("fill", color_palette(node_code_color(label)));
-					svg.append("text").attr("x", 30).attr("y", 10 + i*20).text(label).attr("text-anchor", "left").style("alignment-baseline", "middle");
 				});
 			}
 
 			var items = document.getElementsByName('colorLabel');
         	for (var i = 0; i < items.length; i++) {
             if (items[i].type == 'checkbox')
-                items[i].checked = false;
-        	}
+                items[i].checked = true;
+			}
+			colorByLabel("ALL");
 		}
 		else{
 			var x = document.getElementById("formCheckLabel");
