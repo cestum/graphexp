@@ -358,7 +358,7 @@
                 }
 
                 function display_color_choice(prop_list,item,text){
-                prop_list = ['none','label'].concat(prop_list);
+                prop_list = ['label','none'].concat(prop_list);
                 var nav_bar = d3.select("#graphInfoBar");
                 nav_bar.select("#color_choice_"+item).remove();
                 var color_bar = nav_bar.append("div").attr("id","color_choice_"+item);

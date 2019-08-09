@@ -20,9 +20,8 @@ var graphShapes = (function(){
 	"use strict";
 
 	var color_palette = d3.scaleOrdinal(d3.schemeCategory20);
-	var colored_prop = "none";
+	var colored_prop = "label";
 	var node_code_color = [];
-	var count = 0;
 
 	function node_size(d){
 		if ('size' in d) {return d.size;}
@@ -37,6 +36,7 @@ var graphShapes = (function(){
 	function node_color(d){
 		if (colored_prop!="none"){
 			if (colored_prop == "label"){
+				update_node_code_color();
 				return color_palette(node_code_color(d.label));	
 			}
 			else if (typeof d.properties[colored_prop] !=="undefined"){
@@ -299,32 +299,7 @@ var graphShapes = (function(){
 			});
 		}
 		else if (prop_name=="label"){
-			var x = document.getElementById("formCheckLabel");
-			if(x.style.display == "none") 
-				x.style.display = "block";
-			var value_set = new Set(value_list.map(function(d){	return d.label;}));
-			node_code_color = d3.scaleOrdinal().domain(value_set).range(d3.range(0,value_set.size));
-			var label_data = Array.from(value_set);
-			if(!count) {
-				count++;
-				d3.select("#formCheckLabel").append('label').attr('class', 'form-check-label').attr('for', 'ALL')
-					.text("ALL  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
-					.attr('id', "ALL").attr('onchange', 'graphShapes.colorByLabel("ALL")');
-				label_data.forEach(function(label, i) {
-					d3.select("#formCheckLabel").append("div").attr('id', 'each_label' + label);
-					var svg = d3.select("#each_label" + label).append("svg").attr("height", "10").attr('width', '10');
-					svg.append("circle").attr("r", 6).attr("cx", 5).attr("cy", 5).style("fill", color_palette(node_code_color(label)));
-					d3.select("#each_label"+label).append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
-						.text(label + "  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
-						.attr('id', label).attr('onchange', 'colorByLabel(this)');
-				});
-			}
-
-			var items = document.getElementsByName('colorLabel');
-        	for (var i = 0; i < items.length; i++) {
-            if (items[i].type == 'checkbox')
-                items[i].checked = true;
-			}
+			update_node_code_color();
 			colorByLabel("ALL");
 		}
 		else{
@@ -353,6 +328,43 @@ var graphShapes = (function(){
 		}
 	}
 
+	function update_node_code_color() {
+		var value_list = d3.selectAll(".node").data();
+		var x = document.getElementById("formCheckLabel");
+		if(x.style.display == "none") 
+			x.style.display = "block";
+		var value_set = new Set(value_list.map(function(d){	return d.label;}));
+		node_code_color = d3.scaleOrdinal().domain(value_set).range(d3.range(0,value_set.size));
+		make_legend(d3.select('#formCheckLabel'), Array.from(value_set));
+		var items = document.getElementsByName('colorLabel');
+        for (var i = 0; i < items.length; i++) {
+			if (items[i].type == 'checkbox')
+				items[i].checked = true;
+		}
+	}
+
+	function make_legend(area, data) {
+		if (d3.select("#ALL").empty()) {
+			d3.select("#formCheckLabel").append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', 'ALL')
+				.text("ALL  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
+				.attr('id', "ALL").attr('onchange', 'graphShapes.colorByLabel("ALL")');
+		}
+		data.forEach(function(label, i) {
+			if (d3.select("#each_label" + label).empty()) {
+				area.append("div").attr('id', 'each_label' + label);
+				var row = d3.select("#each_label" + label);
+				var svg = row.append("svg").attr("height", "10").attr('width', '10');
+				svg.append("circle").attr("id", "#circle" + label).attr("r", 6).attr("cx", 5).attr("cy", 5).style("fill", color_palette(node_code_color(label)));
+				row.append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
+					.text(label + "  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
+					.attr('id', label).attr('onchange', 'colorByLabel(this)');
+			} else {
+				// if existing, make sure to update based on new node_code_color
+				d3.select("#circle" + label).style("fill", color_palette(node_code_color(label)));
+			}
+		});
+	}
+
 	function colorByLabel (element_label) {
 		console.log(element_label);
 		var checkedLabel = [];
@@ -369,19 +381,30 @@ var graphShapes = (function(){
 		}
 
 		for (var i = 1; i < items.length; i++) {
-		if (items[i].type == 'checkbox' && items[i].checked) 
-			checkedLabel.push(items[i].id);
+			if (items[i].type == 'checkbox' && items[i].checked) 
+				checkedLabel.push(items[i].id);
+		}
+
+		if (checkedLabel.length > 0 && checkedLabel.length != items.length - 1 && checkedLabel[0]!="ALL") {
+			items[0].checked = false;
 		}
 		
 		d3.selectAll(".base_circle").style("fill",function(d){
 			if(checkedLabel.includes(d.label)) {
-				return color_palette(node_code_color(d.label));	}
+				return color_palette(node_code_color(d.label));	
+			} else {
+				return default_node_color;
+			}
 		});
 		d3.selectAll(".Pin").style("fill",function(d){
 			if(checkedLabel.includes(d.label)) {
-				return color_palette(node_code_color(d.label));	}
+				return color_palette(node_code_color(d.label));	
+			} else {
+				return default_node_color;
+			}
 		});
 	}
+
 	///////////////////////////////////////
 	// https://github.com/wbkd/d3-extended
 	d3.selection.prototype.moveToFront = function() {

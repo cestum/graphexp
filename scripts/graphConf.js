@@ -27,7 +27,7 @@ const force_y_strength = 0.1;
 // Nodes
 const default_node_size = 15;
 const default_stroke_width = 2;
-const default_node_color = "#80E810";
+const default_node_color = "C0C0C0";
 const active_node_margin = 6;
 const active_node_margin_opacity = 0.3;
 // Node position info in the DB
