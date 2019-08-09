@@ -330,14 +330,14 @@ var graphShapes = (function(){
 
 	function update_node_code_color() {
 		var value_list = d3.selectAll(".node").data();
+		var value_set = new Set(value_list.map(function(d){	return d.label;}));
 		var x = document.getElementById("formCheckLabel");
 		if(x.style.display == "none") 
 			x.style.display = "block";
-		var value_set = new Set(value_list.map(function(d){	return d.label;}));
 		node_code_color = d3.scaleOrdinal().domain(value_set).range(d3.range(0,value_set.size));
 		make_legend(d3.select('#formCheckLabel'), Array.from(value_set));
 		var items = document.getElementsByName('colorLabel');
-        for (var i = 0; i < items.length; i++) {
+		for (var i = 0; i < items.length; i++) {
 			if (items[i].type == 'checkbox')
 				items[i].checked = true;
 		}
@@ -345,22 +345,29 @@ var graphShapes = (function(){
 
 	function make_legend(area, data) {
 		if (d3.select("#ALL").empty()) {
-			d3.select("#formCheckLabel").append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', 'ALL')
+			area.append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', 'ALL')
 				.text("ALL  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
 				.attr('id', "ALL").attr('onchange', 'graphShapes.colorByLabel("ALL")');
 		}
-		data.forEach(function(label, i) {
-			if (d3.select("#each_label" + label).empty()) {
-				area.append("div").attr('id', 'each_label' + label);
-				var row = d3.select("#each_label" + label);
+		data.forEach(function(label) {
+			if (d3.select("#" + label).empty()) {
+				area.append("div").attr('id', label).attr('name', 'legendRow');
+				var row = d3.select("#" + label);
 				var svg = row.append("svg").attr("height", "10").attr('width', '10');
-				svg.append("circle").attr("id", "#circle" + label).attr("r", 6).attr("cx", 5).attr("cy", 5).style("fill", color_palette(node_code_color(label)));
+				svg.append("circle").attr("id", "circle" + label).attr("r", 6).attr("cx", 5).attr("cy", 5).style("fill", color_palette(node_code_color(label)));
 				row.append('label').attr('class', 'label').attr('class', 'form-check-label').attr('for', label)
 					.text(label + "  ").append('input').attr('type', 'checkbox').attr('name', 'colorLabel')
 					.attr('id', label).attr('onchange', 'colorByLabel(this)');
 			} else {
 				// if existing, make sure to update based on new node_code_color
+				d3.select("#" + label).style("display","block");
 				d3.select("#circle" + label).style("fill", color_palette(node_code_color(label)));
+			}
+		});
+		var entries = document.getElementsByName('legendRow');
+		entries.forEach(function(entry){
+			if (!data.includes(entry.id)) {
+				entry.style.display = "none";
 			}
 		});
 	}
