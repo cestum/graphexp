@@ -62,6 +62,7 @@ var graphioGremlin = (function(){
 			+gremlin_query_edges+gremlin_query_edges_prop
 			+ "[nodes.toList(),nodesprop.toList(),edges.toList(),edgesprop.toList()]"
 		// while busy, show we're doing something in the messageArea.
+		console.log("get_graph_info");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		var message = ""
 				if(SINGLE_COMMANDS_AND_NO_VARS){
@@ -176,6 +177,7 @@ var graphioGremlin = (function(){
 							edge_queries.push(traversal_source + ".V('" + node2ID + "').outE('" + side + "')");
 							run_inspect_queries(node_queries, edge_queries);
 						} else {
+							$('#messageArea').html('');
 							$('#outputArea').html('<h2>No similarity between assignments</h2>');
 						}
 					});
@@ -185,12 +187,12 @@ var graphioGremlin = (function(){
 	}
 
 	function run_inspect_queries(node_queries, edge_queries) {
-		console.log("run_inspect_queries");
 		let gremlin_query_nodes = node_queries[0];
 		let gremlin_query_edges = edge_queries[0];
 		var message = ""
 		let gremlin_query = gremlin_query_nodes+gremlin_query_edges+"[nodes, edges]";
 		// while busy, show we're doing something in the messageArea.
+		console.log("run_inspect_queries");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
 			var nodeQuery = create_single_command(gremlin_query_nodes);
@@ -264,6 +266,7 @@ var graphioGremlin = (function(){
 		console.log(gremlin_query);
 
 		// while busy, show we're doing something in the messageArea.
+		console.log("search_query");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		// To display the queries in the message area:
 		// var message_nodes = "<p>Node query: '"+gremlin_query_nodes+"'</p>";
@@ -292,6 +295,7 @@ var graphioGremlin = (function(){
 
 		let gremlin_query = gremlin_query_nodes+gremlin_query_edges+"[nodes, edges]";
 		// while busy, show we're doing something in the messageArea.
+		console.log("load_graph");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		var message = ""
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
@@ -322,6 +326,7 @@ var graphioGremlin = (function(){
 					gremlin_query_edges = node_input + ".aggregate('node').outE().as('edge').inV().where(within('node')).select('edge').toList();";
 				var gremlin_query = node_input+gremlin_query_edges+"[nodes, edges]";
 				// while busy, show we're doing something in the messageArea.
+				console.log("run_user_query");
 				$('#messageArea').html('<h3>(loading)</h3>');
 				var message = "";
 				if (SINGLE_COMMANDS_AND_NO_VARS) {
@@ -348,6 +353,7 @@ var graphioGremlin = (function(){
 		var gremlin_query_out_nodes = edge_input + ".outV()";
 		var gremlin_query = gremlin_query_in_nodes+gremlin_query_out_nodes+edge_input+"[nodes, edges]";
 		// while busy, show we're doing something in the messageArea.
+		console.log("edge_input_only");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		var message = "";
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
@@ -387,6 +393,7 @@ var graphioGremlin = (function(){
 		var gremlin_query_edges = "edges = " + traversal_source + ".V("+id+").bothE("+(edge_filter?"'"+edge_filter+"'":"")+")";
 		var gremlin_query = gremlin_query_nodes+'\n'+gremlin_query_edges+'\n'+'[nodes.toList(),edges.toList()]'
 		// while busy, show we're doing something in the messageArea.
+		console.log("click_query");
 		$('#messageArea').html('<h3>(loading)</h3>');
 		var message = "<p>Query ID: "+ d.id +"</p>"
 				if(SINGLE_COMMANDS_AND_NO_VARS){
@@ -427,6 +434,7 @@ var graphioGremlin = (function(){
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	function run_ajax_request(gremlin_query,server_url,query_type,active_node,message, callback){
 		// while busy, show we're doing something in the messageArea.
+		console.log("run_ajax_request");
 		$('#messageArea').html('<h3>(loading)</h3>');
 
 		// Get the data from the server
@@ -489,6 +497,7 @@ var graphioGremlin = (function(){
 	// Websocket connection
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	function run_websocket_request(gremlin_query,server_url,query_type,active_node,message,callback){
+		console.log("run_websocket_request");
 		$('#messageArea').html('<h3>(loading)</h3>');
 
 		var msg = { "requestId": uuidv4(),
