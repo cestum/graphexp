@@ -26,6 +26,14 @@
             graphioGremlin.search_query();
             }
 
+            function inspect_logic(){
+            graphioGremlin.inspect_logic();
+            }
+
+            function inspect_field(){
+            graphioGremlin.inspect_field();
+            }
+
             function load_graph() {
             graphioGremlin.load_graph();
             }
@@ -111,6 +119,8 @@
                             <input class="form-check-input" type="checkbox" name="showName_box" id="showName" onclick="graphShapes.show_names()" />
                             <label class="form-check-label" for="showName">Show labels</label>
                         </div>
+                        <button style="margin-right: 8px" name="inspect logic" class="btn btn-outline-default my-2 my-sm-0" data-toggle="modal" data-target="#inspectModal">Inspect Logic</button>
+                        <button style="margin-right: 8px" name="inspect field" class="btn btn-outline-default my-2 my-sm-0" data-toggle="modal" data-target="#fieldModal">Inspect Field</button>
                         <button style="margin-right: 8px" name="load graph" class="btn btn-outline-default my-2 my-sm-0" onclick="load_graph();">Load Graph</button>
                         <button style="margin-right: 8px" type="button" class="btn btn-outline-info my-2 my-sm-0" data-toggle="modal" data-target="#gremlinModal">Write Query</button>
                         <button style="margin-right: 8px" name="clear" class="btn btn-outline-danger my-2 my-sm-0" onclick="graph_viz.clear();">Clear</button>
@@ -284,6 +294,53 @@
                 </div>
             </div>
 
+            <!-- Logic Inspection Modal -->
+            <div class="modal fade" id="inspectModal" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Choose Statement Types to Inspect</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <label class="form-check-label" for="assignmentCheck">Assignment</label>
+                                <input type="checkbox" id="assignmentCheck">
+                            </div>
+                            <div class="container">
+                                <label class="form-check-label" for="conditionalCheck">Conditional</label>
+                                <input type="checkbox" id="conditionalCheck">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="inspect_logic();">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Inspection Modal -->
+            <div class="modal fade" id="fieldModal" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Inspect Field Usage</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <label>Enter Field Name</label>
+                                <input class="form-control" type="text" placeholder="AREA_NAME.FIELD_NAME" id="fieldName">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="inspect_field();">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- INITIALIZATION -->
             <script type="text/javascript">
                 if(host){

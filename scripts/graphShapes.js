@@ -380,10 +380,7 @@ var graphShapes = (function(){
 		if(element_label == 'ALL') {
 			for (var i = 1; i < items.length; i++) {
 				console.log(items[i]);
-				if(items[0].checked ) 
-					items[i].checked = true; 
-				else
-					items[i].checked = false;
+				items[i].checked = items[0].checked; 
 			}
 		}
 

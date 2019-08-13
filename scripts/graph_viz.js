@@ -413,6 +413,7 @@ var graph_viz = (function () {
 		layers.remove_duplicates(".active_edgepath", ".old_edgepath");
 		layers.remove_duplicates(".active_edgelabel", ".old_edgelabel");
 
+		graphShapes.colorByLabel('ALL');
 
 		///////////////////////////////
 		// Force simulation

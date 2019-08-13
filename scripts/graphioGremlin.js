@@ -85,6 +85,71 @@ var graphioGremlin = (function(){
 				}
 	}
 
+	function inspect_field() {
+		var query = traversal_source + ".V().has('name', '" + $('#fieldName').val() + "').repeat(_in()).until(hasLabel('LOGIC')).in('HAS').path().unfold()";
+		var edge_query = query + ".aggregate('node').outE().as('edge').inV().where(within('node')).select('edge')";
+		var gremlin_query = query + edge_query;
+		var message = '';
+		if (SINGLE_COMMANDS_AND_NO_VARS) {
+			var nodeQuery = create_single_command(query);
+			var edgeQuery = create_single_command(edge_query);
+			console.log("Node query: "+nodeQuery);
+			console.log("Edge query: "+edgeQuery);
+			send_to_server(nodeQuery, null, null, null, function(nodeData){
+				send_to_server(edgeQuery, null, null, null, function(edgeData){
+					var combinedData = [nodeData,edgeData];
+					handle_server_answer(combinedData, 'search', null, message);
+				});
+			});
+		} else {
+			send_to_server(gremlin_query,'search',null,message);
+		}
+	}
+
+	function inspect_logic() {
+		var node_queries = [];
+		var edge_queries = [];
+		if ($('#assignmentCheck')[0].checked) {
+			node_queries.push(traversal_source + ".V().hasLabel('LOGIC').out().has('name','assignment')");
+		}
+		if ($('#conditionalCheck')[0].checked) {
+			node_queries.push(traversal_source + ".V().hasLabel(\"CONDITIONAL\").out().path().unfold()");
+			edge_queries.push(traversal_source + ".V().hasLabel('CONDITIONAL').outE()");
+		}
+		run_inspect_queries(node_queries, edge_queries);
+	}
+
+	function run_inspect_queries(node_queries, edge_queries) {
+		let gremlin_query_nodes = traversal_source + ".V().hasLabel('LOGIC')";
+		let gremlin_query_edges = traversal_source + ".V().hasLabel('LOGIC').outE()";
+		var message = ""
+		let gremlin_query = gremlin_query_nodes+gremlin_query_edges+"[nodes, edges]";
+		// while busy, show we're doing something in the messageArea.
+		$('#messageArea').html('<h3>(loading)</h3>');
+		if (SINGLE_COMMANDS_AND_NO_VARS) {
+			var nodeQuery = create_single_command(gremlin_query_nodes);
+			var edgeQuery = create_single_command(gremlin_query_edges);
+			var combinedData = [];
+			for (var i in node_queries) {
+				var node_query = create_single_command(node_queries[i]);
+				send_to_server(node_query, null, null, null, function (data) {combinedData.push(data)});
+			}
+			for (var i in edge_queries) {
+				var edge_query = create_single_command(edge_queries[i]);
+				send_to_server(edge_query, null, null, null, function (data) {combinedData.push(data)});
+			}
+			send_to_server(nodeQuery, null, null, null, function(nodeData) {
+				send_to_server(edgeQuery, null, null, null, function(edgeData) {
+					combinedData.push(edgeData);
+					combinedData.push(nodeData);
+					console.log(combinedData);
+					handle_server_answer(combinedData, 'search', null, message);
+				});
+			});
+		} else {
+			send_to_server(gremlin_query,'search',null,message);
+		}
+	}
 
 
 	function search_query() {
@@ -650,6 +715,8 @@ function get_vertex_prop_in_list(vertexProperty){
 		get_node_properties : get_node_properties,
 		get_edge_properties : get_edge_properties,
 		get_graph_info : get_graph_info,
+		inspect_field : inspect_field,
+		inspect_logic : inspect_logic,
 		search_query : search_query,
 		load_graph : load_graph,
 		run_user_query : run_user_query,
