@@ -303,13 +303,44 @@
                             <h4 class="modal-title">Choose Statement Types to Inspect</h4>
                         </div>
                         <div class="modal-body">
+                            <p>Find logic boxes with specific types of statements or compare two statements of the same type.</p>
                             <div class="container">
                                 <label class="form-check-label" for="assignmentCheck">Assignment</label>
                                 <input type="checkbox" id="assignmentCheck">
+                                <form>
+                                    <div class="row">
+                                    </div>
+                                    <div class="row">
+                                        <label>Compare Two Assignments</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input class="form-control form-control-sm" type="text" placeholder="node id 1 (ex. v15)" id="assignmentNode1">
+                                        </div>
+                                        <div class="col">
+                                            <input class="form-control form-control-sm" type="text" placeholder="node id 2 (ex. v18)" id="assignmentNode2">
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                             <div class="container">
                                 <label class="form-check-label" for="conditionalCheck">Conditional</label>
                                 <input type="checkbox" id="conditionalCheck">
+                                <form>
+                                    <div class="row">
+                                    </div>
+                                    <div class="row">
+                                        <label>Compare Two Conditionals</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input class="form-control form-control-sm" type="text" placeholder="node id 1 (ex. 'v15')" id="conditionalNode1">
+                                        </div>
+                                        <div class="col">
+                                            <input class="form-control form-control-sm" type="text" placeholder="node id 2 (ex. 'v18')" id="conditionalNode2">
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="modal-footer">
