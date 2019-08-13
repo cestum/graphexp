@@ -109,19 +109,29 @@ var graphioGremlin = (function(){
 	function inspect_logic() {
 		var node_queries = [];
 		var edge_queries = [];
-		if ($('#assignmentCheck')[0].checked) {
-			node_queries.push(traversal_source + ".V().hasLabel('LOGIC').out().has('name','assignment')");
-		}
-		if ($('#conditionalCheck')[0].checked) {
-			node_queries.push(traversal_source + ".V().hasLabel(\"CONDITIONAL\").out().path().unfold()");
-			edge_queries.push(traversal_source + ".V().hasLabel('CONDITIONAL').outE()");
+		if ($('#assignmentCheck')[0].checked && $('#conditionalCheck')[0].checked) {
+			var logic_query = traversal_source + ".V().hasLabel('LOGIC').out().has('name','assignment').in().hasLabel('LOGIC').out().hasLabel('CONDITIONAL').in()";
+			node_queries.push(logic_query + ".path().unfold()"); // logic, assignment, and conditional nodes
+			node_queries.push(logic_query + ".out().hasLabel('CONDITIONAL').out()"); //if/else nodes
+			edge_queries.push(logic_query + ".out().has('name','assignment').inE('HAS')"); // logic->assignment edges
+			edge_queries.push(logic_query + ".out().hasLabel('CONDITIONAL').inE('HAS')"); // logic->conditional edges
+			edge_queries.push(logic_query + ".out().hasLabel('CONDITIONAL').outE()"); // conditional->if/else edges
+		} else if ($('#assignmentCheck')[0].checked) {
+			var assignment_query = traversal_source + ".V().hasLabel('LOGIC').out().has('name','assignment')";
+			node_queries.push(assignment_query + ".path().unfold()"); // logic and assignment nodes
+			edge_queries.push(assignment_query + ".inE('HAS')"); // logic->assignment edges
+		} else if ($('#conditionalCheck')[0].checked) {
+			var conditional_query = traversal_source + ".V().hasLabel('LOGIC').out().hasLabel('CONDITIONAL')";
+			node_queries.push(conditional_query + ".out().path().unfold()"); //logic, conditional, and if/else nodes
+			edge_queries.push(conditional_query + ".inE('HAS')"); //logic->conditional edges
+			edge_queries.push(traversal_source + ".V().hasLabel('CONDITIONAL').outE()"); //conditional->if/else edges
 		}
 		run_inspect_queries(node_queries, edge_queries);
 	}
 
 	function run_inspect_queries(node_queries, edge_queries) {
-		let gremlin_query_nodes = traversal_source + ".V().hasLabel('LOGIC')";
-		let gremlin_query_edges = traversal_source + ".V().hasLabel('LOGIC').outE()";
+		let gremlin_query_nodes = node_queries[0];
+		let gremlin_query_edges = edge_queries[0];
 		var message = ""
 		let gremlin_query = gremlin_query_nodes+gremlin_query_edges+"[nodes, edges]";
 		// while busy, show we're doing something in the messageArea.
@@ -129,21 +139,21 @@ var graphioGremlin = (function(){
 		if (SINGLE_COMMANDS_AND_NO_VARS) {
 			var nodeQuery = create_single_command(gremlin_query_nodes);
 			var edgeQuery = create_single_command(gremlin_query_edges);
-			var combinedData = [];
-			for (var i in node_queries) {
+			var allData = [];
+			for (var i = 1; i < node_queries.length; i++) {
 				var node_query = create_single_command(node_queries[i]);
-				send_to_server(node_query, null, null, null, function (data) {combinedData.push(data)});
+				send_to_server(node_query, null, null, null, function (data) {allData.push(data)});
 			}
-			for (var i in edge_queries) {
+			for (var i = 1; i < edge_queries.length; i++) {
 				var edge_query = create_single_command(edge_queries[i]);
-				send_to_server(edge_query, null, null, null, function (data) {combinedData.push(data)});
+				send_to_server(edge_query, null, null, null, function (data) {allData.push(data)});
 			}
 			send_to_server(nodeQuery, null, null, null, function(nodeData) {
 				send_to_server(edgeQuery, null, null, null, function(edgeData) {
-					combinedData.push(edgeData);
-					combinedData.push(nodeData);
-					console.log(combinedData);
-					handle_server_answer(combinedData, 'search', null, message);
+					allData.push(edgeData);
+					allData.push(nodeData);
+					console.log(allData);
+					handle_server_answer(allData, 'search', null, message);
 				});
 			});
 		} else {
